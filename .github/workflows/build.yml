@@ -1,9 +1,6 @@
 name: Build
 
 on:
-  push:
-    branches:
-        - '**'
   schedule:
     - cron: '0 0 * * *'
 
@@ -22,24 +19,30 @@ jobs:
         echo "BEARSSL_EXECUTABLE=${source_directory}/build/brssl" >> "${GITHUB_ENV}"
     - name: Generate CA bundle
       run: |
-        perl submodules/curl/scripts/mk-ca-bundle.pl
+        perl ./submodules/curl/scripts/mk-ca-bundle.pl
+        
         echo "CA_BUNDLE_PATH=$(realpath './ca-bundle.crt')" >> "${GITHUB_ENV}"
+        echo "CERT_DATA_PATH=$(realpath './certdata.txt')" >> "${GITHUB_ENV}"
     - name: Generate BearSSL header
       run: |
         ${{ env.BEARSSL_EXECUTABLE }} ta ${{ env.CA_BUNDLE_PATH }} > './cert.h'
-        echo "BEARSSL_HEADER_PATH=$(realpath './ca-bundle.crt')" >> "${GITHUB_ENV}"
+        echo "BEARSSL_HEADER_PATH=$(realpath './cert.h')" >> "${GITHUB_ENV}"
     - name: Setup files
       run: |
         [ -d './pem' ] || mkdir './pem'
         [ -d './brssl' ] || mkdir './brssl'
+        [ -d './certdata' ] || mkdir './certdata'
         
         mv ${{ env.CA_BUNDLE_PATH }} './pem/cert.pem'
         sha256sum './pem/cert.pem' | awk '{print $1}' > './pem/cert.pem.sha256'
         
         mv ${{ env.BEARSSL_HEADER_PATH }} './brssl/cert.h'
         sha256sum './brssl/cert.h' | awk '{print $1}' > './brssl/cert.h.sha256'
+        
+        mv ${{ env.CERT_DATA_PATH }} './certdata/certdata.txt'
+        sha256sum './certdata/certdata.txt' | awk '{print $1}' > './certdata/certdata.txt.sha256'
     - uses: EndBug/add-and-commit@main
       with:
-        add: 'pem' 'brssl'
+        add: '*'
         default_author: github_actions
         message: 'Update CA bundle'
