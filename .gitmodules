@@ -1,0 +1,6 @@
+[submodule "submodules/bearssl"]
+	path = submodules/bearssl
+	url = https://www.bearssl.org/git/BearSSL
+[submodule "submodules/curl"]
+	path = submodules/curl
+	url = https://github.com/curl/curl
