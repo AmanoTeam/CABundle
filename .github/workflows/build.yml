@@ -14,7 +14,7 @@ jobs:
         submodules: true
     - name: Generate CA bundle
       run: |
-        perl ./submodules/curl/scripts/mk-ca-bundle.pl
+        perl ./submodules/curl/scripts/mk-ca-bundle.pl -d nss
         
         echo "CA_BUNDLE_PATH=$(realpath './ca-bundle.crt')" >> "${GITHUB_ENV}"
         echo "CERT_DATA_PATH=$(realpath './certdata.txt')" >> "${GITHUB_ENV}"
